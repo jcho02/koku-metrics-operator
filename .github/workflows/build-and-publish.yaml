@@ -3,7 +3,7 @@ name: Build and Publish Images
 on:
   push:
     branches:
-      - 'main'
+      - 'ptest'
     tags:  # run on any tag that starts with `v` but not tags that end with `-downstream`
       - 'v**'
       - '!v**-downstream'
@@ -29,7 +29,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            quay.io/project-koku/koku-metrics-operator
+            quay.io/jcho0/koku-metrics-operator
           tags: |
             type=semver,pattern={{raw}}
             type=sha,prefix=,enable=${{ github.ref_type == 'tag' }}
