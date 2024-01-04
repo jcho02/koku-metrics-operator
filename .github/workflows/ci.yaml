@@ -93,8 +93,7 @@ jobs:
         run: |
           docker run \
           --rm \
-          --platform linux/ppc64le golang:latest \
-          -v $(pwd):/build \
+          --platform linux/ppc64le golang:latest -v $(pwd):/build \
           -v /usr/local/kubebuilder:/usr/local/kubebuilder \
           -w /build \
           make generate manifests \
