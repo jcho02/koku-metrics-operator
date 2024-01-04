@@ -97,7 +97,7 @@ jobs:
           -v $(pwd):/build \
           -v /usr/local/kubebuilder:/usr/local/kubebuilder \
           -w /build \
-          docker.io/golang:1.21 \
+          docker.io/library/golang:latest \
           make generate manifests \
           go test ./... -v -coverprofile cover.out -covermode=atomic
 
