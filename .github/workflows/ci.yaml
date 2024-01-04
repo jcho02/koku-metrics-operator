@@ -93,13 +93,12 @@ jobs:
         run: |
           docker run \
           --rm \
-          -- platform linux/ppc64le \
+          --platform linux/ppc64le ubuntu:22.04 \
           -v $(pwd):/build \
           -v /usr/local/kubebuilder:/usr/local/kubebuilder \
-          -w /build \
-          docker.io/library/golang:latest \
-          make generate manifests \
-          go test ./... -v -coverprofile cover.out -covermode=atomic
+          -w /build '
+          make generate manifests;
+          go test ./... -v -coverprofile cover.out -covermode=atomic;'
 
 #      - name: Upload test coverage file
 #        uses: actions/upload-artifact@v4
