@@ -50,11 +50,6 @@ jobs:
           arch=$(go env GOARCH)
           curl -L "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v2.3.1/kubebuilder_2.3.1_${os}_${arch}.tar.gz" | tar -xz -C /tmp/
           sudo mv /tmp/kubebuilder_2.3.1_${os}_${arch} /usr/local/kubebuilder
-          curl -L "https://github.com/etcd-io/etcd/releases/download/v3.5.11/etcd-v3.5.11-${os}-${arch}.tar.gz" | tar -xz -C /tmp/
-          sudo mv /tmp/etcd-v3.5.11-${os}-${arch}/etcd /usr/local/kubebuilder/bin
-          curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.24.13/kubernetes-server-${os}-${arch}.tar.gz" | tar -xz -C /tmp/
-          sudo mv /tmp/kubernetes/server/bin/kube-apiserver /usr/local/kubebuilder/bin
-          sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
           export PATH=$PATH:/usr/local/kubebuilder/bin
 
       - name: Run tests
@@ -89,6 +84,11 @@ jobs:
           arch=${{ matrix.platform }}
           curl -L "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v2.3.1/kubebuilder_2.3.1_${os}_${arch}.tar.gz" | tar -xz -C /tmp/
           sudo mv /tmp/kubebuilder_2.3.1_${os}_${arch} /usr/local/kubebuilder
+          curl -L "https://github.com/etcd-io/etcd/releases/download/v3.5.11/etcd-v3.5.11-${os}-${arch}.tar.gz" | tar -xz -C /tmp/
+          sudo mv /tmp/etcd-v3.5.11-${os}-${arch}/etcd /usr/local/kubebuilder/bin
+          curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.24.13/kubernetes-server-${os}-${arch}.tar.gz" | tar -xz -C /tmp/
+          sudo mv /tmp/kubernetes/server/bin/kube-apiserver /usr/local/kubebuilder/bin
+          sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
           export PATH=$PATH:/usr/local/kubebuilder/bin
 
       - name: Run tests
