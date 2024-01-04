@@ -94,6 +94,7 @@ jobs:
           docker run \
           --rm \
           --platform linux/ppc64le golang:latest \
+          echo $(ls) \
           -v $(pwd):/build \
           -v /usr/local/kubebuilder:/usr/local/kubebuilder \
           -w /build '
