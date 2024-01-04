@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - ptest
-      - main
 
 jobs:
 
@@ -47,7 +46,7 @@ jobs:
 
       - name: Install kubebuilder
         run : |
-          echo uname -m
+          echo $(uname -m)
           os=$(go env GOOS)
           arch=$(go env GOARCH)
           curl -L "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v2.3.1/kubebuilder_2.3.1_${os}_${arch}.tar.gz" | tar -xz -C /tmp/
