@@ -87,12 +87,11 @@ jobs:
           curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.24.13/kubernetes-server-${os}-${arch}.tar.gz" | tar -xz -C /tmp/
           sudo mv /tmp/kubernetes/server/bin/kube-apiserver /usr/local/kubebuilder/bin
           sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
-          export PATH=$PATH:/usr/local/kubebuilder/bin
 
       - name: Run tests on ${{ matrix.architecture }}
         run: |
           docker run \
-          --rm -it \
+          --rm \
           --platform linux/ppc64le golang:latest \
           -v $(pwd):/build \
           -v /usr/local/kubebuilder:/usr/local/kubebuilder \
