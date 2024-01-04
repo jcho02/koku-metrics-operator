@@ -93,8 +93,7 @@ jobs:
           docker run \
           --rm \
           --platform linux/ppc64le golang:latest \
-          -v "$(pwd):/build" \
-          -v "/usr/local/kubebuilder:/usr/local/kubebuilder" \
+          -v /usr/local/kubebuilder:/usr/local/kubebuilder \
           -w /build '
           make generate manifests;
           go test ./... -v -coverprofile cover.out -covermode=atomic; '
