@@ -69,16 +69,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Display build environment
         run: printenv
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-
-      - name: Install kubebuilder
+      - name: Install required packages
         run : |
           os=linux
           arch=${{ matrix.platform }}
@@ -91,9 +89,16 @@ jobs:
           sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
           export PATH=$PATH:/usr/local/kubebuilder/bin
 
-      - name: Run tests
+      - name: Run tests on ${{ matrix.architecture }}
         run: |
-          make generate manifests
+          docker run \
+          --rm \
+          -- platform linux/ppc64 \
+          -v $(pwd):/build \
+          -v /usr/local/kubebuilder:/usr/local/kubebuilder \
+          -w /build \
+          golang:latest \
+          make generate manifests \
           go test ./... -v -coverprofile cover.out -covermode=atomic
 
 #      - name: Upload test coverage file
