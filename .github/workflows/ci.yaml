@@ -102,6 +102,7 @@ jobs:
           --mount "type=bind,src=/usr/local/kubebuilder,dst=/usr/local/kubebuilder"
           -w /build
           ubuntu:latest
+          apt install make
           make generate manifests
           go test ./... -v -coverprofile cover.out -covermode=atomic
 
