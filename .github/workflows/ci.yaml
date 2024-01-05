@@ -76,7 +76,7 @@ jobs:
           go-version-file: go.mod
           
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Display build environment
         run: printenv
@@ -93,11 +93,12 @@ jobs:
           sudo mv /tmp/kubernetes/server/bin/kube-apiserver /usr/local/kubebuilder/bin
           sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
 
-      - name: Run tests on ${{ matrix.architecture }}
+      - name: Run tests on ${{ matrix.platform }}
         run: >-
           docker run
           --rm
-          --platform linux/ppc64le ubuntu:latest
+          --network ${{ job.container.network }}
+          --platform linux/${{ matrix.platform }}
           --mount "type=bind,src=$(pwd),dst=/build"
           --mount "type=bind,src=/usr/local/kubebuilder,dst=/usr/local/kubebuilder"
           -w /build
