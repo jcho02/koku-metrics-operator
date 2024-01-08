@@ -98,8 +98,8 @@ jobs:
           docker run
           --rm
           --platform linux/${{ matrix.platform }}
-          --mount "type=bind,src=$(pwd),dst=/build"
-          --mount "type=bind,src=/usr/local/kubebuilder,dst=/usr/local/kubebuilder"
+          --mount "type=bind,src=$(pwd),target=/build"
+          --mount "type=bind,src=/usr/local/kubebuilder,target=/usr/local/kubebuilder"
           -w /build
           quay.io/projectquay/golang:1.21
           /bin/bash -ec '
