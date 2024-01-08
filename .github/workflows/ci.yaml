@@ -103,6 +103,7 @@ jobs:
           -w /build
           quay.io/projectquay/golang:1.20
           /bin/bash -ec '
+          go env; 
           make generate manifests;
           go test ./... -v -coverprofile cover.out -covermode=atomic'
 
