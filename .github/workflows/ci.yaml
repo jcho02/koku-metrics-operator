@@ -101,11 +101,10 @@ jobs:
           --mount "type=bind,src=$(pwd),dst=/build"
           --mount "type=bind,src=/usr/local/kubebuilder,dst=/usr/local/kubebuilder"
           -w /build
-          ubuntu:latest 
-          /bin/bash '
-          apt-get install -y make; \
+          quay.io/projectquay/golang:1.21
+          /bin/bash -ec '
           make generate manifests; \
-          go test ./... -v -coverprofile cover.out -covermode=atomic;'
+          go test ./... -v -coverprofile cover.out -covermode=atomic'
 
 #      - name: Upload test coverage file
 #        uses: actions/upload-artifact@v4
