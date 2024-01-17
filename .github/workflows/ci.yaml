@@ -106,6 +106,7 @@ jobs:
           useradd testuser;
           chown -R testuser /build;
           su testuser;
+          whoami;
           make generate manifests;
           go test ./... -v -coverprofile cover.out -covermode=atomic'
 
