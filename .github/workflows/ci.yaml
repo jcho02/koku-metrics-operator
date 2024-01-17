@@ -63,7 +63,7 @@ jobs:
     strategy:
       matrix:
         platform: [ppc64le]
-
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -94,18 +94,9 @@ jobs:
           sudo mv /tmp/kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin
 
       - name: Run tests on ${{ matrix.platform }}
-        run: >-
-          docker run
-          --rm
-          --platform linux/${{ matrix.platform }}
-          --mount "type=bind,src=$(pwd),target=/build"
-          --mount "type=bind,src=/usr/local/kubebuilder,target=/usr/local/kubebuilder"
-          -w /build
-          quay.io/projectquay/golang:1.20
-          /bin/bash -ec '
-          go env; 
-          make generate manifests;
-          go test ./... -v -coverprofile cover.out -covermode=atomic'
+        run:
+          make generate manifests
+          go test ./... -v -coverprofile cover.out -covermode=atomic
 
 #      - name: Upload test coverage file
 #        uses: actions/upload-artifact@v4
