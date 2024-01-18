@@ -104,6 +104,7 @@ jobs:
           /bin/bash -ec '
           useradd testuser;
           chown testuser $(pwd);
+          chown testuser /home;
           su testuser -c "git clone https://github.com/project-koku/koku-metrics-operator.git && cd koku-metrics-operator && make generate manifests && go test ./... -v -coverprofile cover.out -covermode=atomic";'
 
 #      - name: Upload test coverage file
