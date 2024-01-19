@@ -4,7 +4,7 @@
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 PREVIOUS_VERSION ?= 3.1.0
-VERSION ?= 3.1.1
+VERSION ?= 3.2.0
 
 # Default bundle image tag
 IMAGE_TAG_BASE ?= quay.io/project-koku/koku-metrics-operator
@@ -44,11 +44,12 @@ OS = $(shell go env GOOS)
 ARCH = $(shell go env GOARCH)
 
 # DOCKER := $(shell which docker 2>/dev/null)
-# export DOCKER_DEFAULT_PLATFORM = linux/x86_64
+export DOCKER_DEFAULT_PLATFORM = linux/x86_64
 
 # Set the Operator SDK version to use. By default, what is installed on the system is used.
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
-OPERATOR_SDK_VERSION ?= v1.32.0
+OPERATOR_SDK_VERSION ?= v1.33.0
+OPERATOR_REGISTRY_VERSION ?= v1.34.0
 
 # CONTAINER_TOOL defines the container tool to be used for building images.
 # Be aware that the target commands are only tested with Docker which is
@@ -157,7 +158,7 @@ test: manifests generate fmt vet envtest ## Run tests.
 
 .PHONY: build
 build: manifests generate fmt vet vendor ## Build manager binary.
-	go build -o bin/manager main.go
+	go build -o bin/manager cmd/main.go
 
 SECRET_ABSPATH ?= ./testing
 WATCH_NAMESPACE ?= koku-metrics-operator
@@ -165,7 +166,7 @@ WATCH_NAMESPACE ?= koku-metrics-operator
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
 	kubectl apply -f testing/sa.yaml
-	WATCH_NAMESPACE=$(WATCH_NAMESPACE) SECRET_ABSPATH=$(SECRET_ABSPATH) GIT_COMMIT=$(GIT_COMMIT) go run ./main.go
+	WATCH_NAMESPACE=$(WATCH_NAMESPACE) SECRET_ABSPATH=$(SECRET_ABSPATH) GIT_COMMIT=$(GIT_COMMIT) go run cmd/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
@@ -185,13 +186,12 @@ docker-push: ## Push docker image with the manager.
 # - have enabled BuildKit. More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 # - be able to push the image to your registry (i.e. if you do not set a valid value via IMG=<myregistry/image:<tag>> then the export will fail)
 # To adequately provide solutions that are compatible with multiple platforms, you should consider using this option.
-# PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
-PLATFORMS ?= linux/arm64,linux/amd64
+PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
 .PHONY: docker-buildx
 docker-buildx: ## Build and push docker image for the manager for cross-platform support
-	- $(CONTAINER_TOOL) buildx create --name operator-builder --driver-opt image=moby/buildkit:v0.12.3
+	- $(CONTAINER_TOOL) buildx create --name operator-builder --driver-opt image=moby/buildkit:v0.12.4
 	- $(CONTAINER_TOOL) buildx use operator-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --provenance=false --tag ${IMG} .
 	- $(CONTAINER_TOOL) buildx rm operator-builder
 
 ##@ Deployment
@@ -315,8 +315,8 @@ downstream: ## Generate the code changes necessary for the downstream image.
 	- LC_ALL=C find api/v1beta1 config/* docs/* -type f -exec sed -i -- 's/$(UPSTREAM_UPPERCASE)/$(DOWNSTREAM_UPPERCASE)/g' {} +
 	- LC_ALL=C find api/v1beta1 config/* docs/* -type f -exec sed -i -- 's/$(UPSTREAM_LOWERCASE)/$(DOWNSTREAM_LOWERCASE)/g' {} +
 	# fix the cert
-	- sed -i -- 's/ca-certificates.crt/ca-bundle.crt/g' crhchttp/http_cloud_dot_redhat.go
-	- sed -i -- 's/isCertified bool = false/isCertified bool = true/g' packaging/packaging.go
+	- sed -i -- 's/ca-certificates.crt/ca-bundle.crt/g' internal/crhchttp/http_cloud_dot_redhat.go
+	- sed -i -- 's/isCertified bool = false/isCertified bool = true/g' internal/packaging/packaging.go
 	# clean up the other files
 	- git clean -fx
 	# mv the sample to the correctly named file
@@ -363,7 +363,7 @@ $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
 .PHONY: opm
-OPM = ./bin/opm
+OPM = $(LOCALBIN)/opm
 opm: ## Download opm locally if necessary.
 ifeq (,$(wildcard $(OPM)))
 ifeq (,$(shell which opm 2>/dev/null))
@@ -371,7 +371,7 @@ ifeq (,$(shell which opm 2>/dev/null))
 	set -e ;\
 	mkdir -p $(dir $(OPM)) ;\
 	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
-	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/v1.23.0/$${OS}-$${ARCH}-opm ;\
+	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/$(OPERATOR_REGISTRY_VERSION)/$${OS}-$${ARCH}-opm ;\
 	chmod +x $(OPM) ;\
 	}
 else
